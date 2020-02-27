@@ -1,7 +1,7 @@
 package main
 
 import (
-	"/http_util"
+	"http_util"
 	"fmt"
 	"net/http"
 	"time"
