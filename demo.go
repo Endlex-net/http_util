@@ -12,7 +12,7 @@ func main() {
 	client.Timeout = time.Millisecond * 500  // timeout
 	client.ReTry = 5  // 重试次数
 	client.Body = http_util.Body{  // body params
-		ContentType: http_util.FormData,
+		ContentType: http_util.TypeFormData,
 		Data:        http_util.Data{"job_id": "2"},
 	}
 	res, err := client.Send()

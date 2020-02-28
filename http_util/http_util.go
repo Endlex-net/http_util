@@ -3,6 +3,7 @@ package http_util
 import (
 	"bytes"
 	"encoding/json"
+    "encoding/xml"
 	"fmt"
 	"io/ioutil"
 	"math"
@@ -12,12 +13,13 @@ import (
 	"time"
 )
 
+
 // 使用 Demo
 //func UseDemo() {
 //	client := NewClient("http://www.baidu.com", http.MethodPost)
 //	client.QueryParams = map[string]string{"test": "test"}
 //	client.Body = Body{
-//		ContentType: Urlencoded,
+//		ContentType: TypeUrlencoded,
 //		Data:        map[string]string{"test": "test"},
 //	}
 //	client.ReTry = 5                        // NewClient 默认 0 次
@@ -42,10 +44,17 @@ func (d *Data) Copy() Data {
 	return newData
 }
 
+// Content-Type
 const (
-	FormData   = "multipart/form-data"
-	Urlencoded = "application/x-www-form-urlencoded"
+	TypeFormData   = "form"
+	TypeUrlencoded = "urlencoded"
 )
+
+var ContentTypes = map[string]string{
+	TypeFormData:   "multipart/form-data",
+	TypeUrlencoded: "application/x-www-form-urlencoded",
+}
+
 
 type Body struct {
 	ContentType string
@@ -179,10 +188,10 @@ func (c *Client) serializeBody() string {
 	contentType := ""
 	body := ""
 	switch c.Body.ContentType {
-	case Urlencoded:
-		contentType = Urlencoded
+	case TypeUrlencoded:
+		contentType = ContentTypes[TypeUrlencoded]
 		body = linkData(c.Body.Data)
-	case FormData:
+	case TypeFormData:
 		b := &bytes.Buffer{}
 		writer := multipart.NewWriter(b)
 		for key, value := range c.Body.Data {
@@ -234,7 +243,13 @@ func NewResponse(httpRes *http.Response) (*Response, error) {
 
 // Json
 func (r *Response) Json(v interface{}) error {
-	err := json.Unmarshal(r.Body, v)
+	err := json.Unmarshal(r.Body, &v)
+	return err
+}
+
+// Xml
+func (r *Response) Xml(v interface{}) error{
+	err := xml.Unmarshal(r.Body, &v)
 	return err
 }
 
@@ -245,3 +260,4 @@ func (r *Response) Text() string {
 	}
 	return string(r.Body)
 }
+
